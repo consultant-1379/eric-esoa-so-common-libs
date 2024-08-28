@@ -1,0 +1,2 @@
+com.ericsson.bos.so.common.logging.config.CommonLoggingConfig
+com.ericsson.bos.so.common.logging.config.WebMvcLoggingConfig

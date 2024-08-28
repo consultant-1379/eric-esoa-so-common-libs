@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "file://schema/LogEvent#",
+  "title": "Log event",
+  "description": "Definition of a structured log event",
+  "eric-adp-version": "1.2.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "description": "Version of this logging format.",
+      "type": "string",
+      "default": "1.2.0"
+    },
+    "timestamp": {
+      "description": "YYYY-MM-DDThh:mm:ss.sss+/-hh:mm. The time expressed in local time with UTC offset and millisecond precision. Example: 2015-08-12T11:33:14.012+01:00",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d\\d-\\d\\d[T][\\d:.]+([zZ]|([+\\-])(\\d\\d):?(\\d\\d))?$"
+    },
+    "severity": {
+      "description": "Log event severity level.",
+      "type": "string",
+      "enum": [
+        "debug",
+        "info",
+        "warning",
+        "error",
+        "critical"
+      ]
+    },
+    "service_id": {
+      "description": "Name of the service producing the log event.",
+      "type": "string"
+    },
+    "extra_data": {
+      "description": "Optional structure which can be used by any service to add specific properties.",
+      "type": "object"
+    },
+    "metadata": {
+      "description": "Optional properties which can be used to parse the logging events.",
+      "type": "object",
+      "properties": {
+        "function": {
+          "description": "The name of the function to which the event is related.",
+          "type": "string"
+        },
+        "category": {
+          "description": "An identifier for the type of message.",
+          "type": "string"
+        },
+        "proc_id": {
+          "description": "Identifies a process name or process ID inside a service.",
+          "type": "string"
+        },
+        "ul_id": {
+          "description": "An identifier that uniquely identifies the origin of a logged event in the source code across multiple versions of the service.",
+          "type": "string"
+        },
+        "pod_name": {
+          "description": "Identifies the name of the POD hosting the log producer.",
+          "type": "string"
+        },
+        "pod_uid": {
+          "description": "An identifier that uniquely identifies the POD hosting the log producer.",
+          "type": "string"
+        },
+        "container_name": {
+          "description": "Identifies the name of the log producer container.",
+          "type": "string"
+        },
+        "node_name": {
+          "description": "Identifies the name of the node the log producer is running on.",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "Identify the namespace the log producer belongs to.",
+          "type": "string"
+        },
+        "application_id": {
+          "description": "A short string using printable ASCII characters used to uniquely identifies the application instance.",
+          "type": "string"
+        },
+        "groups": {
+          "description": "An identifier for classifying the log events having shared characteristics, to allow a log event to be part of different groups.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "message": {
+      "description": "A freeform text describing the log event, preferably without control characters (even escaped).",
+      "type": "string"
+    },
+    "facility": {
+      "description": "Facility is described by non normative values aiming to categorize logs.",
+      "type": "string"
+    },
+    "subject": {
+      "description": "The operator who performed the O&M operation.",
+      "type": "string"
+    },
+    "resp_message": {
+      "description": "A freeform text dedicated to response messages.",
+      "type": "string"
+    },
+    "resp_code": {
+      "description": "A freeform text dedicated to response codes.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "timestamp",
+    "severity",
+    "service_id",
+    "message"
+  ]
+}

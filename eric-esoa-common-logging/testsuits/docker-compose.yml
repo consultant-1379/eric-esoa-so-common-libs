@@ -1,0 +1,91 @@
+#
+# COPYRIGHT Ericsson 2023
+#
+#
+#
+# The copyright to the computer program(s) herein is the property of
+#
+# Ericsson Inc. The programs may be used and/or copied only with written
+#
+# permission from Ericsson Inc. or in accordance with the terms and
+#
+# conditions stipulated in the agreement/contract under which the
+#
+# program(s) have been supplied.
+#
+
+#use version 3.2 because this is the highest version, that is supported by Jenkins
+version: "3.2"
+services:
+  #  webflux-eo-logging:
+  #    build:
+  #      context: ./services
+  #      args:
+  #        # Use LATEST to be able to run docker-compose locally. In Jenkinsfile it will be replaced by current build version of eo-logging-library
+  #        LOGGING_LIBRARY_VERSION: 2.0.0
+  #        # IMPORTANT: the following lines are used by the logic from Jenkinsfile
+  #        UID: $(id -u)
+  #        GID: $(id -g)
+  #        SOURCE_FOLDER: webflux-service
+  #    environment:
+  #      - SERVICE_ID=test-webflux-logging-service
+  #    networks:
+  #      - test-logging
+  #    volumes:
+  #      - ./logs:/home/logging_service_admin/logs
+  #    cap_drop:
+  #      - ALL
+  #    security_opt:
+  #      - no-new-privileges
+
+  web-mvc-without-security-service:
+    build:
+      context: ./services
+      args:
+        # Use LATEST to be able to run docker-compose locally. In Jenkinsfile it will be replaced by current build version of eo-logging-library
+        LOGGING_LIBRARY_VERSION: lib_version
+        # IMPORTANT: the following lines are used by the logic from Jenkinsfile
+        UID: 1000 # <-- gets substituted by the value from real env on Jenkins
+        GID: 1000 # <-- gets substituted by the value from real env on Jenkins
+        SOURCE_FOLDER: web-mvc-without-security-service
+        JAVA_VERSION: "17"
+    environment:
+      - SERVICE_ID=web-mvc-without-security-service
+    networks:
+      - test-logging
+    volumes:
+      - ./logs:/home/logging_service_admin/logs
+      - ./logcontrol:/logcontrol
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges
+
+  integration-tests:
+    build:
+      context: ./integration-tests
+    networks:
+      - test-logging
+    volumes:
+      - ./logs:/home/test_admin/logs:ro
+      - ./integration-tests/scripts:/home/test_admin/scripts:ro
+    depends_on:
+      #- webflux-eo-logging
+      - web-mvc-without-security-service
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges
+    command:
+      - 'py.test'
+      - '-q'
+      - '--url=http://web-mvc-without-security-service:8080/ping'
+      - '--check_logs_from=logs/web-mvc-without-security-logging.log'
+      - '--file_to_validate=scripts/adp-log-schema-1_2_0.json
+      - 'scripts/logs_validation_test.py::test_service'
+      - '--tb=native'
+      - '-p'                # Disable using
+      - 'no:cacheprovider'  # .pycache
+
+networks:
+  test-logging:
